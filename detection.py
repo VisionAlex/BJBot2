@@ -1,55 +1,88 @@
 import cv2 as cv
 from screen import Screen
+from threading import Thread, Lock
 
 class Detection:
-    def find(self,screenshot, image, threshold=0.95, method=cv.TM_CCOEFF_NORMED):
-        result = cv.matchTemplate(screenshot, image, method)
-        _, max_val, __, max_loc = cv.minMaxLoc(result)
+    stopped = True
+    lock = None
+    screenshot = None
+    hasScreenshot = False
+    w = None
+    h = None
+    offset_x = 0
+    offset_y = 0
+    object = None
+    objectDetected = False
+    objectPosition = None
 
-        if max_val > threshold:
-            return max_loc
-    def findButton(self,screenshot,image, threshold=0.95):
-        point = self.find(screenshot,image, threshold)
-        if point is not None:
-            return self.find_center(image,point)
+    def __init__(self,offset_x, offset_y):
+        self.lock = Lock()
+        self.threshold = 0.95
+        self. offset_x = offset_x
+        self. offset_y = offset_y
     
-    def draw_rectangle(self,screenshot, image):
-        image_width = image.shape[1]
-        image_height = image.shape[0]
-
-        top_left = self.find(screenshot,image)
-        if not top_left:
-            print('Item not found.')
+    def update(self, screenshot):
+        self.lock.acquire()
+        self.screenshot = screenshot
+        self.hasScreenShot = True
+        self.lock.release()
+    
+    def set_object(self,object):
+        self.lock.acquire()
+        self.object = object
+        self.w = object.shape[1]
+        self.h = object.shape[0]
+        self.lock.release()
+    
+    def find(self):
+        result = cv.matchTemplate(self.screenshot, self.object,method=cv.TM_CCOEFF_NORMED)
+        _, max_val, __, max_loc = cv.minMaxLoc(result)
+        if max_val > self.threshold:
+            return max_loc
+        else:
             return None
-
-        bottom_right = (top_left[0] + image_width, top_left[1] + image_height)
-        cv.rectangle(screenshot,top_left, bottom_right, color=(0,255,0), thickness=1, lineType=cv.LINE_4)
-        return screenshot
-        
-
-    def find_center(self,image, top_left):
-        image_width = image.shape[1]
-        image_height = image.shape[0]
+    
+    def find_center(self,object, top_left):
+        image_width = object.shape[1]
+        image_height = object.shape[0]
 
         center_x = top_left[0] + int(image_width/2)
         center_y = top_left[1] + int(image_height/2)
 
         point = (center_x, center_y)
-        return point
 
-    def find_and_crop_image(self,screenshot,image):
-        point = self.find(screenshot,image)
-        if not point:
-            return None
-        x,y = point
-        width = image.shape[1]
-        height = image.shape[0]
-        print(x,y,width,height)
-        return self.crop_image(screenshot,(x,y,width,height))
+        return point
     
-    def crop_image(self,image,screen:Screen):
-        x,y,width,height = screen
-        return image[y:y + height, x:x + width]
+    def find_position(self, point):
+        return (point[0]+ self.offset_x, point[1] + self.offset_y)
+
+    
+    def start(self):
+        self.stopped = False
+        t = Thread(target=self.run)
+        t.start()
+    
+    def stop(self):
+        self.stopped = True
+    
+    def run(self):
+        while not self.stopped:
+            if not self.screenshot is None:
+                if not self.object is None:
+                        point = self.find()
+                        if point is not None:
+                            position = self.find_position(self.find_center(self.object, point))
+                            self.lock.acquire()
+                            self.objectDetected = True
+                            self.objectPosition = position
+                            self.lock.release()
+                        else:
+                            self.lock.acquire()
+                            self.objectDetected = False
+                            self.objectPosition = False
+                            self.lock.release()
+                    
+
 
         
     

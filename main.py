@@ -1,35 +1,50 @@
 from detection import Detection
 from windowcapture import Window
 import cv2 as cv
-from time import time
+from time import time, sleep
 import pyautogui
-from screen import Screen
 from button import Button
+
+
+def drawMarker(screenshot,point):
+    cv.drawMarker(screenshot, point, (255,0,255),cv.MARKER_CROSS)
 
 
 loop_time = time()
 if __name__ == '__main__':
     window = Window()
-    detector = Detection()
+    detector = Detection(window.offset_x, window.offset_y)
+
+    window.start()
+    detector.start()
+    
+    movedMouse = False
     while True:
-        screenshot = window.get_screenshot()
-        speed_screen = detector.crop_image(screenshot,Screen.speed_screen)
-        decisions_screen = detector.crop_image(screenshot,Screen.decisions_screen)
-        point = detector.findButton(decisions_screen,Button.hit)
-        if point:
-            offset_point = Screen.offset_point(point,Screen.decisions_screen)
-            hit = window.get_screen_position(offset_point)
-            pyautogui.moveTo(*hit)
-            pyautogui.click(*hit)
-            break
+        if window.screenshot is None:
+            continue
+        detector.update(window.screenshot)
+        detector.set_object(Button.turbo)
+        
+        if detector.objectDetected:
+            print(detector.objectPosition)
+            if not movedMouse:
+                pyautogui.moveTo(detector.objectPosition[0], detector.objectPosition[1])
+                movedMouse = True
+                sleep(10)
+
+        else:
+            print('Object not detected')
+
+       
 
         
         
         # print('FPS {}'.format(1 / (time() - loop_time)))
         # print(pyautogui.position())
-        # loop_time = time()
-        cv.imshow("BJ", screenshot)
-        # if speed_screen is not None:
-        #     cv.imshow('Speed', speed_screen)
+        loop_time = time()
+        cv.imshow("BJ", window.screenshot)
         if cv.waitKey(1) == ord('q'):
+            window.stop()
+            detector.stop()
+            cv.destroyAllWindows()
             break

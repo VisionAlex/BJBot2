@@ -3,8 +3,14 @@ import numpy as np
 import cv2 as cv
 from PIL import ImageGrab
 from screen import Screen
+from threading import  Thread , Lock
 
 class Window:
+    stopped = True
+    lock = None
+    screenshot = None
+
+
     w = 0
     h = 0
     hwnd = None
@@ -13,6 +19,8 @@ class Window:
     offset_x = 0
     offset_y = 0
     def __init__(self) -> None:
+        self.lock = Lock()
+
         # self.hwnd = win32gui.FindWindow(None,'Maxbet Casino | Jocuri online: Lux Blackjack - Google Chrome')
         self.hwnd = win32gui.FindWindow(None,'Jocuri de Noroc | Pacanele Online Gratis: Lux Blackjack - Google Chrome')
         if not self.hwnd:
@@ -57,3 +65,19 @@ class Window:
     def crop_image(self,image,screen:Screen):
         x,y,width,height = screen
         return image[y:y + height, x:x + width]
+    
+
+    def start(self):
+        self.stopped = False
+        t = Thread(target = self.run)
+        t.start()
+    
+    def stop(self):
+        self.stopped = True
+    
+    def run(self):
+        while not self.stopped:
+            screenshot = self.get_screenshot()
+            self.lock.acquire()
+            self.screenshot = screenshot
+            self.lock.release()
