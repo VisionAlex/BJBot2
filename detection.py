@@ -13,6 +13,9 @@ class Detection:
     offset_y = 0
 
     repariere = None
+    atentie = None
+    continua = None
+
     player_cards = None
     dealer_card = None
     actions = {
@@ -85,9 +88,22 @@ class Detection:
     
     def check_insurance(self):
         insurance = self.find(Button.insurance)
-        if insurance:
+        even_money = self.find(Button.even_money)
+        if insurance or even_money:
             return True
         return False
+    
+    def check_attention_warning(self):
+        atentie = self.find(Button.ok)
+        if atentie:
+            return self.find_position(self.find_center(Button.ok,atentie))
+        return None
+    
+    def check_activity_warning(self):
+        continua = self.find(Button.continua)
+        if continua:
+            return self.find_position(self.find_center(Button.continua,continua))
+
 
     def check_is_game_in_progress(self):
         point = self.find(Button.repariere)
@@ -229,6 +245,10 @@ class Detection:
         twentyfive = self.find_player_cards(Cards.twentyfive)
         if twentyfive:
             return "Bust"
+        
+        four = self.find_player_cards(Cards.four)
+        if four:
+            return "22"
 
         return None
 
@@ -319,6 +339,17 @@ class Detection:
     def run(self):
         while not self.stopped:
             if not self.screenshot is None:
+                atentie = self.check_attention_warning()
+                self.lock.acquire()
+                self.atentie = atentie
+                self.lock.release()
+
+                continua = self.check_activity_warning()
+                self.lock.acquire()
+                self.continua = continua
+                self.lock.release()
+
+
                 repariere = self.check_is_game_in_progress()
                 self.lock.acquire()
                 self.repariere = repariere
@@ -329,6 +360,7 @@ class Detection:
                     self.lock.acquire()
                     self.actions = actions
                     self.lock.release()
+
                     player_cards = self.get_player_cards()
                     dealer_card = self.get_dealer_card()
                     self.lock.acquire()

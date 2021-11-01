@@ -8,6 +8,9 @@ class Button:
     double = cv.imread('img/double.bmp')
     stand = cv.imread('img/stand.bmp')
     insurance =cv.imread('img/insurance.bmp')
+    even_money = cv.imread('img/even.bmp')
+    ok = cv.imread('img/ok.bmp')
+    continua = cv.imread('img/continua.bmp')
 
 
 class Screen:

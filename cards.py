@@ -3,6 +3,7 @@ import cv2 as cv
 BUST_CARDS = ["22Bust", "23", "24", "25", "26"]
 
 class Cards:
+    four =cv.imread('img/cards/4.bmp')
     five =cv.imread('img/cards/5.bmp')
     six =cv.imread('img/cards/6.bmp')
     seven =cv.imread('img/cards/7.bmp')

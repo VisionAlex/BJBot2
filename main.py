@@ -4,7 +4,6 @@ from windowcapture import Window
 import cv2 as cv
 from time import time, sleep
 import pyautogui
-import keyboard
 from button import Button, Screen
 
 
@@ -29,6 +28,8 @@ if __name__ == '__main__':
 
         detector.update(window.screenshot)
         bot.update_repariere(detector.repariere)
+        bot.update_attention_warning(detector.atentie)
+        bot.update_activity_warning(detector.continua)
         bot.update_dealer_card(detector.dealer_card)
         bot.update_player_cards(detector.player_cards)
         bot.update_actions(detector.actions)
@@ -48,7 +49,7 @@ if __name__ == '__main__':
         loop_time = time()
         # cv.rectangle(window.screenshot,(x,y),(x+w,y+h),color=(0,255,0),thickness=2)
         cv.imshow("BJ", window.screenshot)
-        if keyboard.is_pressed('q'):
+        if cv.waitKey(1) == ord("q"):
             window.stop()
             detector.stop()
             bot.stop()

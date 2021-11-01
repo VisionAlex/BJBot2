@@ -2,6 +2,7 @@ from threading import Lock, Thread
 from enum import Enum
 from time import sleep
 from strategy import strategy
+import winsound
 
 import pyautogui
 
@@ -28,7 +29,11 @@ class Bot:
     lock = None
 
     state = HandState.INITIAL
+
     repariere = None
+    atentie = None
+    continua = None
+
     player_cards = None
     dealer_card = None
     actions = {
@@ -46,6 +51,16 @@ class Bot:
     def update_repariere(self, repariere):
         self.lock.acquire()
         self.repariere = repariere
+        self.lock.release()
+    
+    def update_attention_warning(self, atentie):
+        self.lock.acquire()
+        self.atentie = atentie
+        self.lock.release()
+    
+    def update_activity_warning(self, continua):
+        self.lock.acquire()
+        self.continua = continua
         self.lock.release()
     
     def update_dealer_card(self, dealer_card):
@@ -86,10 +101,19 @@ class Bot:
     
     def run(self):
         while not self.stopped:
+                if self.atentie is not None:
+                    pyautogui.click(*self.atentie)
+                    self.atentie = None
+                
+                if self.continua is not None:
+                    pyautogui.click(*self.continua)
+                    self.continua = None
+
                 if self.repariere is not None:
                     pyautogui.moveTo(*self.repariere)
                     pyautogui.click(*self.repariere)
                     self.state = HandState.NEW_HAND
+                    self.previous_player_total = None
                     sleep(1)
                 
                 if self.insurance:
@@ -107,6 +131,8 @@ class Bot:
 
                     if self.actions['H'] is None:
                         continue
+                    if self.player_cards == "16" and self.actions['P'] is not None:
+                        self.player_cards = "88"
 
                     self.previous_player_total = self.player_cards
                     decision = get_decision(self.dealer_card,self.player_cards)
@@ -137,6 +163,7 @@ class Bot:
                                 self.press_button(decision)
                                 self.state = HandState.FINISHED
                             else:
+                                winsound.Beep(1440,1000)
                                 self.press_button(decision)
                                 self.state = HandState.SPLIT_HAND
                         self.lock.release()
@@ -152,6 +179,7 @@ class Bot:
 
 
                     if self.player_cards  == "Bust":
+                        print('BUST')
                         self.lock.acquire()
                         self.state = HandState.FINISHED
                         self.lock.release()

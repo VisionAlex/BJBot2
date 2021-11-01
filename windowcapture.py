@@ -20,8 +20,12 @@ class Window:
     def __init__(self) -> None:
         self.lock = Lock()
 
-        # self.hwnd = win32gui.FindWindow(None,'Maxbet Casino | Jocuri online: Lux Blackjack - Google Chrome')
-        self.hwnd = win32gui.FindWindow(None,'Jocuri de Noroc | Pacanele Online Gratis: Lux Blackjack - Google Chrome')
+        self.hwnd = win32gui.FindWindow(None,'Maxbet Casino | Jocuri online: Lux Blackjack - Google Chrome')
+
+        # this is for play for fun
+        # self.hwnd = win32gui.FindWindow(None,'Jocuri de Noroc | Pacanele Online Gratis: Lux Blackjack - Google Chrome')
+        
+        
         if not self.hwnd:
             raise Exception(f'Window not found')
         self.resize()
