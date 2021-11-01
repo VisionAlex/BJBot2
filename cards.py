@@ -7,7 +7,7 @@ class Cards:
     six =cv.imread('img/cards/6.bmp')
     seven =cv.imread('img/cards/7.bmp')
     eight =cv.imread('img/cards/8.bmp')
-
+    nine =cv.imread('img/cards/9.bmp')
     ten =cv.imread('img/cards/10.bmp')
     eleven =cv.imread('img/cards/11.bmp')
     twelve =cv.imread('img/cards/12.bmp')
@@ -25,8 +25,15 @@ class Cards:
     twentyfour = cv.imread('img/cards/24.bmp')
     twentyfive = cv.imread('img/cards/25.bmp')
 
+    a2 = cv.imread('img/cards/a2.bmp')
+    a3 = cv.imread('img/cards/a3.bmp')
     a4 = cv.imread('img/cards/a4.bmp')
+    a5 = cv.imread('img/cards/a5.bmp')
+    a6 = cv.imread('img/cards/a6.bmp')
+    a7 = cv.imread('img/cards/a7.bmp')
     a8 = cv.imread('img/cards/a8.bmp')
+    a9 = cv.imread('img/cards/a9.bmp')
+    aa = cv.imread('img/cards/aa.bmp')
 
 
 class Dealer:

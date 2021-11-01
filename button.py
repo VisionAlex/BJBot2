@@ -7,3 +7,10 @@ class Button:
     split = cv.imread('img/split.bmp')
     double = cv.imread('img/double.bmp')
     stand = cv.imread('img/stand.bmp')
+    insurance =cv.imread('img/insurance.bmp')
+
+
+class Screen:
+    player =(299, 202, 109, 45)
+    dealer = (266, 54, 89, 81)
+

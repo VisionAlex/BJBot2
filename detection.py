@@ -1,7 +1,6 @@
 import cv2 as cv
-from button import Button
+from button import Button, Screen
 from cards import Cards, Dealer
-from screen import Screen
 from threading import Thread, Lock
 
 class Detection:
@@ -22,6 +21,7 @@ class Detection:
         "D": None,
         "P": None,
     }
+    
     def __init__(self,offset_x, offset_y):
         self.lock = Lock()
         self.threshold = 0.95
@@ -33,15 +33,12 @@ class Detection:
         self.screenshot = screenshot
         self.lock.release()
     
-    def set_object(self,object):
-        self.lock.acquire()
-        self.object = object
-        self.w = object.shape[1]
-        self.h = object.shape[0]
-        self.lock.release()
+    def get_rectangle(self,object):
+        point = self.find(object)
+        return (point[0],point[1], object.shape[1], object.shape[0])
     
 
-    def find(self, object, threshold= 0.95):
+    def find(self,object, threshold= 0.95):
         result = cv.matchTemplate(self.screenshot, object,method=cv.TM_CCOEFF_NORMED)
         _, max_val, __, max_loc = cv.minMaxLoc(result)
         if max_val > threshold:
@@ -49,9 +46,22 @@ class Detection:
         else:
             return None
     
-    def find_gray(self,object,threshold=0.9):
+    def find_player_cards(self,object, threshold=0.95):
+        x,y,w,h = Screen.player
+        cropped = self.screenshot[y:y+h,x:x+w]
+        result = cv.matchTemplate(cropped, object,method=cv.TM_CCOEFF_NORMED)
+        _, max_val, __, max_loc = cv.minMaxLoc(result)
+        if max_val > threshold:
+            return max_loc
+        else:
+            return None
+    
+    
+    def find_dealer_cards(self,object,threshold=0.85):
         gray_screenshot = cv.cvtColor(self.screenshot,cv.COLOR_BGR2GRAY)
-        result = cv.matchTemplate(gray_screenshot,object,method=cv.TM_CCOEFF_NORMED)
+        x,y,w,h = Screen.dealer
+        cropped = gray_screenshot[y:y+h, x:x+w]
+        result = cv.matchTemplate(cropped,object,method=cv.TM_CCOEFF_NORMED)
         _, max_val, __, max_loc = cv.minMaxLoc(result)
         if max_val > threshold:
             return max_loc
@@ -72,6 +82,12 @@ class Detection:
     
     def find_position(self, point):
         return (point[0]+ self.offset_x, point[1] + self.offset_y)
+    
+    def check_insurance(self):
+        insurance = self.find(Button.insurance)
+        if insurance:
+            return True
+        return False
 
     def check_is_game_in_progress(self):
         point = self.find(Button.repariere)
@@ -82,157 +98,190 @@ class Detection:
         return self.find_position(center)
     
     def get_player_cards(self):
-        twenty = self.find(Cards.twenty)
+        twenty = self.find_player_cards(Cards.twenty)
         if twenty:
             return "20"
         
-        thirteen = self.find(Cards.thirteen)
+        thirteen = self.find_player_cards(Cards.thirteen)
         if thirteen:
             return "13"
         
-        twelve = self.find(Cards.twelve)
+        twelve = self.find_player_cards(Cards.twelve)
         if twelve:
             if self.actions['P'] is not None:
                 return "66"
             return "12"
         
-        fourteen = self.find(Cards.fourteen)
+        fourteen = self.find_player_cards(Cards.fourteen)
         if fourteen:
             if self.actions['P'] is not None:
                 return "77"
             return "14"
         
-        fifteen = self.find(Cards.fifteen)
+        fifteen = self.find_player_cards(Cards.fifteen)
         if fifteen:
             return "15"
         
-        sixteen = self.find(Cards.sixteen)
+        sixteen = self.find_player_cards(Cards.sixteen)
         if sixteen:
             if self.actions['P'] is not None:
                 return "88"
             return "16"
         
-        seventeen = self.find(Cards.seventeen)
+        seventeen = self.find_player_cards(Cards.seventeen)
         if seventeen:
             return "17"
         
-        eighteen = self.find(Cards.eighteen)
+        eighteen = self.find_player_cards(Cards.eighteen)
         if eighteen:
             if self.actions['P'] is not None:
                 return "99"
             return "18"
         
-        nineteen = self.find(Cards.nineteen)
+        nineteen = self.find_player_cards(Cards.nineteen)
         if nineteen:
             return "19"
         
-        twentyone = self.find(Cards.twentyone)
+        twentyone = self.find_player_cards(Cards.twentyone)
         if twentyone:
             return "21"
         
-        eleven = self.find(Cards.eleven)
+        eleven = self.find_player_cards(Cards.eleven)
         if eleven:
             return "11"
         
-        ten = self.find(Cards.ten)
+        ten = self.find_player_cards(Cards.ten)
         if ten:
             return "10"
         
-        #Nine
-        eight = self.find(Cards.eight)
+        nine = self.find_player_cards(Cards.nine)
+        if nine:
+            return "9"
+        
+        eight = self.find_player_cards(Cards.eight)
         if eight:
             if self.actions['P'] is not None:
                 return "44"
             return "8"
 
-        seven = self.find(Cards.seven)
+        seven = self.find_player_cards(Cards.seven)
         if seven:
             return "7"
 
-        six = self.find(Cards.six)
+        six = self.find_player_cards(Cards.six)
         if six:
             if self.actions['P'] is not None:
                 return "33"
             return "6"
 
+        five = self.find_player_cards(Cards.five)
+        if five:
+            return "5"
         
-        a4 = self.find(Cards.a4)
-        
+        a2 = self.find_player_cards(Cards.a2)
+        if a2:
+            return "A2"
+
+        a3 = self.find_player_cards(Cards.a3)
+        if a3:
+            return "A3"
+
+        a4 = self.find_player_cards(Cards.a4)
         if a4:
             return "A4"
         
-        a8 = self.find(Cards.a8)
+        a5 = self.find_player_cards(Cards.a5)
+        if a5:
+            return "A5"
+
+        a6 = self.find_player_cards(Cards.a6)
+        if a6:
+            return "A6"
+        
+        a7 = self.find_player_cards(Cards.a7)
+        if a7:
+            return "A7"
+
+        a8 = self.find_player_cards(Cards.a8)
         if a8:
             return "A8"
         
-        twentytwo = self.find(Cards.twentytwo)
-        if twentytwo:
-            return "22Bust"
+        a9 = self.find_player_cards(Cards.a9)
+        if a9:
+            return "A9"
         
-        twentythree = self.find(Cards.twentythree)
+        aa = self.find_player_cards(Cards.aa)
+        if aa:
+            return "AA"
+        
+        twentytwo = self.find_player_cards(Cards.twentytwo)
+        if twentytwo:
+            return "Bust"
+        
+        twentythree = self.find_player_cards(Cards.twentythree)
         if twentythree:
-            return "23"
+            return "Bust"
 
-        twentyfour = self.find(Cards.twentyfour)
+        twentyfour = self.find_player_cards(Cards.twentyfour)
         if twentyfour:
-            return "24"
+            return "Bust"
 
-        twentyfive = self.find(Cards.twentyfive)
+        twentyfive = self.find_player_cards(Cards.twentyfive)
         if twentyfive:
-            return "25"
+            return "Bust"
 
         return None
 
     def get_dealer_card(self):
-        two = self.find_gray(Dealer.two)
+        two = self.find_dealer_cards(Dealer.two)
         if two:
             return "Two"
 
-        three = self.find_gray(Dealer.three)
+        three = self.find_dealer_cards(Dealer.three)
         if three:
             return "Three"
 
-        four = self.find_gray(Dealer.four)
+        four = self.find_dealer_cards(Dealer.four)
         if four:
             return "Four"
 
-        five = self.find_gray(Dealer.five)
+        five = self.find_dealer_cards(Dealer.five)
         if five:
             return "Five"
         
-        six = self.find_gray(Dealer.six)
+        six = self.find_dealer_cards(Dealer.six)
         if six:
             return "Six"
 
-        seven = self.find_gray(Dealer.seven)
+        seven = self.find_dealer_cards(Dealer.seven)
         if seven:
             return "Seven"
         
-        eight = self.find_gray(Dealer.eight)
+        eight = self.find_dealer_cards(Dealer.eight)
         if eight:
             return "Eight"
         
-        nine = self.find_gray(Dealer.nine)
+        nine = self.find_dealer_cards(Dealer.nine)
         if nine:
             return "Nine"
 
-        ten = self.find_gray(Dealer.ten)
+        ten = self.find_dealer_cards(Dealer.ten)
         if ten:
             return "Ten"
 
-        jack = self.find_gray(Dealer.jack)
+        jack = self.find_dealer_cards(Dealer.jack)
         if jack:
             return "Ten"
         
-        queen = self.find_gray(Dealer.queen)
+        queen = self.find_dealer_cards(Dealer.queen)
         if queen:
             return "Ten"
 
-        king = self.find_gray(Dealer.king)
+        king = self.find_dealer_cards(Dealer.king)
         if king:
             return "Ten"
 
-        ace = self.find_gray(Dealer.ace)
+        ace = self.find_dealer_cards(Dealer.ace)
         if ace:
             return "Ace"
     

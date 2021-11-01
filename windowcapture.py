@@ -2,7 +2,6 @@ import win32gui
 import numpy as np
 import cv2 as cv
 from PIL import ImageGrab
-from screen import Screen
 from threading import  Thread , Lock
 
 class Window:
@@ -61,10 +60,6 @@ class Window:
     
     def get_screen_position(self, pos):
         return (pos[0] + self.offset_x, pos[1] + self.offset_y)
-    
-    def crop_image(self,image,screen:Screen):
-        x,y,width,height = screen
-        return image[y:y + height, x:x + width]
     
 
     def start(self):
