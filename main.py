@@ -27,6 +27,8 @@ if __name__ == '__main__':
             continue
 
         detector.update(window.screenshot)
+        detector.update_hand_state(bot.state)
+
         bot.update_repariere(detector.repariere)
         bot.update_attention_warning(detector.atentie)
         bot.update_activity_warning(detector.continua)
@@ -44,7 +46,7 @@ if __name__ == '__main__':
         # print('FPS {}'.format(1 / (time() - loop_time)))
         
         
-        # x,y,w,h = Screen.dealer
+        # x,y,w,h = Screen.split1
         # print(pyautogui.position())
         loop_time = time()
         # cv.rectangle(window.screenshot,(x,y),(x+w,y+h),color=(0,255,0),thickness=2)

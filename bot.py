@@ -22,13 +22,14 @@ class HandState(Enum):
     DEALT_CARDS = 2
     MORE_THAN_TWO = 3
     SPLIT_HAND = 4
-    FINISHED = 5
+    SECOND_SPLIT_HAND = 5
+    FINISHED = 6
 
 class Bot:
     stopped = True
     lock = None
 
-    state = HandState.INITIAL
+    state = HandState.SPLIT_HAND
 
     repariere = None
     atentie = None
@@ -114,13 +115,13 @@ class Bot:
                     pyautogui.click(*self.repariere)
                     self.state = HandState.NEW_HAND
                     self.previous_player_total = None
-                    sleep(1)
+                    sleep(1.2)
                 
                 if self.insurance:
                     pyautogui.moveTo(*INSURANCE)
                     pyautogui.click(*INSURANCE)
                 
-                if self.player_cards and self.dealer_card and self.actions['H'] is not None:
+                if self.player_cards and self.dealer_card and self.actions['H'] is not None and (self.state != HandState.SPLIT_HAND or self.state != HandState.SECOND_SPLIT_HAND):
                     self.lock.acquire()
                     self.state = HandState.DEALT_CARDS
                     self.lock.release()
@@ -133,6 +134,9 @@ class Bot:
                         continue
                     if self.player_cards == "16" and self.actions['P'] is not None:
                         self.player_cards = "88"
+                    
+                    if self.player_cards == "8" and self.actions['P'] is not None:
+                        self.player_cards = "44"
 
                     self.previous_player_total = self.player_cards
                     decision = get_decision(self.dealer_card,self.player_cards)
@@ -166,6 +170,7 @@ class Bot:
                                 winsound.Beep(1440,1000)
                                 self.press_button(decision)
                                 self.state = HandState.SPLIT_HAND
+                                self.previous_player_total = None
                         self.lock.release()
                         sleep(1)
                     else:
@@ -209,8 +214,80 @@ class Bot:
 
                 
                 if self.state == HandState.SPLIT_HAND:
-                    pass
-                
+                    if self.actions['H'] is None:
+                        continue
+                    if self.player_cards is None:
+                        continue
+                    if self.player_cards == "Bust":
+                        self.lock.acquire()
+                        self.state = HandState.SECOND_SPLIT_HAND
+                        self.previous_player_total = None
+                        self.lock.release()
+                    
+                    self.previous_player_total = self.player_cards
+                    decision = get_decision(self.dealer_card,self.player_cards)
+                    print(f"SPLIT1: {self.player_cards} vs {self.dealer_card}: {decision}")
+
+                    if decision:
+                        self.lock.acquire()
+                        if decision == "S":
+                            self.press_button("S")
+                            self.state = HandState.SECOND_SPLIT_HAND
+                            self.previous_player_total = None
+                        elif decision == "D":
+                            if self.actions['D'] is not None:
+                                self.press_button(decision)
+                                self.state = HandState.SECOND_SPLIT_HAND
+                                self.previous_player_total = None
+                            else:
+                                self.press_button('H')
+                        elif decision == "Ds":
+                            if self.actions['D'] is not None:
+                                self.press_button("D")
+                            else:
+                                self.press_button("S")
+                            self.state = HandState.SECOND_SPLIT_HAND
+                            self.previous_player_total = None
+                        elif decision == "H":
+                            self.press_button(decision)
+                        self.lock.release()
+                    
+
+                if self.state == HandState.SECOND_SPLIT_HAND:
+                    if self.actions['H'] is None:
+                        continue
+                    if self.player_cards is None:
+                        continue
+                    if self.player_cards == "Bust":
+                        self.lock.acquire()
+                        self.state = HandState.FINISHED
+                        self.lock.release()
+                    
+                    self.previous_player_total = self.player_cards
+                    decision = get_decision(self.dealer_card,self.player_cards)
+                    print(f"SPLIT2: {self.player_cards} vs {self.dealer_card}: {decision}")
+
+                    if decision:
+                        self.lock.acquire()
+                        if decision == "S":
+                            self.press_button("S")
+                            self.state = HandState.FINISHED
+                        elif decision == "D":
+                            if self.actions['D'] is not None:
+                                self.press_button(decision)
+                                self.state = HandState.FINISHED
+                            else:
+                                self.press_button('H')
+                        elif decision == "Ds":
+                            if self.actions['D'] is not None:
+                                self.press_button("D")
+                            else:
+                                self.press_button("S")
+                            self.state = HandState.FINISHED
+                        elif decision == "H":
+                            self.press_button(decision)
+                        self.lock.release()
+
                 if self.state == HandState.FINISHED:
                     self.previous_player_total = None
-                    sleep(0.5)
+                    sleep(0.4)

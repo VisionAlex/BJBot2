@@ -14,6 +14,8 @@ class Button:
 
 
 class Screen:
-    player =(299, 202, 109, 45)
+    player = (299, 202, 109, 45)
     dealer = (266, 54, 89, 81)
+    split1 = (326, 206, 83, 87)
+    split2 = (205, 203, 80, 88)
 

@@ -1,4 +1,5 @@
 import cv2 as cv
+from bot import HandState
 from button import Button, Screen
 from cards import Cards, Dealer
 from threading import Thread, Lock
@@ -15,6 +16,7 @@ class Detection:
     repariere = None
     atentie = None
     continua = None
+    hand_state = HandState.INITIAL
 
     player_cards = None
     dealer_card = None
@@ -36,6 +38,11 @@ class Detection:
         self.screenshot = screenshot
         self.lock.release()
     
+    def update_hand_state(self,state: HandState):
+        self.lock.acquire()
+        self.hand_state = state
+        self.lock.release()
+    
     def get_rectangle(self,object):
         point = self.find(object)
         return (point[0],point[1], object.shape[1], object.shape[0])
@@ -50,7 +57,16 @@ class Detection:
             return None
     
     def find_player_cards(self,object, threshold=0.95):
-        x,y,w,h = Screen.player
+        if self.hand_state == HandState.SPLIT_HAND:
+            screen = Screen.split1
+            threshold = 0.7
+        elif self.hand_state == HandState.SECOND_SPLIT_HAND:
+            threshold = 0.7
+            screen = Screen.split2
+        else:
+            screen = Screen.player
+
+        x,y,w,h = screen
         cropped = self.screenshot[y:y+h,x:x+w]
         result = cv.matchTemplate(cropped, object,method=cv.TM_CCOEFF_NORMED)
         _, max_val, __, max_loc = cv.minMaxLoc(result)
@@ -114,6 +130,7 @@ class Detection:
         return self.find_position(center)
     
     def get_player_cards(self):
+        isSplit = self.hand_state == HandState.SPLIT_HAND or self.hand_state == HandState.SECOND_SPLIT_HAND
         twenty = self.find_player_cards(Cards.twenty)
         if twenty:
             return "20"
@@ -130,7 +147,7 @@ class Detection:
         
         fourteen = self.find_player_cards(Cards.fourteen)
         if fourteen:
-            if self.actions['P'] is not None:
+            if not isSplit and self.actions['P'] is not None:
                 return "77"
             return "14"
         
@@ -140,7 +157,7 @@ class Detection:
         
         sixteen = self.find_player_cards(Cards.sixteen)
         if sixteen:
-            if self.actions['P'] is not None:
+            if not isSplit and self.actions['P'] is not None:
                 return "88"
             return "16"
         
@@ -150,7 +167,7 @@ class Detection:
         
         eighteen = self.find_player_cards(Cards.eighteen)
         if eighteen:
-            if self.actions['P'] is not None:
+            if not isSplit and self.actions['P'] is not None:
                 return "99"
             return "18"
         
@@ -176,7 +193,7 @@ class Detection:
         
         eight = self.find_player_cards(Cards.eight)
         if eight:
-            if self.actions['P'] is not None:
+            if not isSplit and self.actions['P'] is not None:
                 return "44"
             return "8"
 
@@ -186,7 +203,7 @@ class Detection:
 
         six = self.find_player_cards(Cards.six)
         if six:
-            if self.actions['P'] is not None:
+            if  not isSplit and self.actions['P'] is not None:
                 return "33"
             return "6"
 
@@ -218,7 +235,8 @@ class Detection:
         if a7:
             return "A7"
 
-        a8 = self.find_player_cards(Cards.a8)
+
+        a8 = self.find_player_cards(Cards.a8,0.7)
         if a8:
             return "A8"
         
