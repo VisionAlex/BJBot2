@@ -17,6 +17,8 @@ class Detection:
     atentie = None
     continua = None
     hand_state = HandState.INITIAL
+    screen = Screen.player
+    cropped = None
 
     player_cards = None
     dealer_card = None
@@ -57,17 +59,12 @@ class Detection:
             return None
     
     def find_player_cards(self,object, threshold=0.95):
-        if self.hand_state == HandState.SPLIT_HAND:
-            screen = Screen.split1
-            threshold = 0.7
-        elif self.hand_state == HandState.SECOND_SPLIT_HAND:
-            threshold = 0.7
-            screen = Screen.split2
-        else:
-            screen = Screen.player
+        if self.hand_state == HandState.SPLIT_HAND or self.hand_state == HandState.SECOND_SPLIT_HAND:
+            threshold = 0.9
 
-        x,y,w,h = screen
+        x,y,w,h = self.screen
         cropped = self.screenshot[y:y+h,x:x+w]
+        
         result = cv.matchTemplate(cropped, object,method=cv.TM_CCOEFF_NORMED)
         _, max_val, __, max_loc = cv.minMaxLoc(result)
         if max_val > threshold:
@@ -131,6 +128,9 @@ class Detection:
     
     def get_player_cards(self):
         isSplit = self.hand_state == HandState.SPLIT_HAND or self.hand_state == HandState.SECOND_SPLIT_HAND
+        
+        if self.actions['H'] is None:
+            return None
         twenty = self.find_player_cards(Cards.twenty)
         if twenty:
             return "20"
@@ -236,7 +236,7 @@ class Detection:
             return "A7"
 
 
-        a8 = self.find_player_cards(Cards.a8,0.7)
+        a8 = self.find_player_cards(Cards.a8)
         if a8:
             return "A8"
         
@@ -357,6 +357,16 @@ class Detection:
     def run(self):
         while not self.stopped:
             if not self.screenshot is None:
+                
+                self.lock.acquire()
+                if self.hand_state == HandState.SPLIT_HAND:
+                    self.screen = Screen.split1
+                elif self.hand_state == HandState.SECOND_SPLIT_HAND:
+                    self.screen = Screen.split2
+                else:
+                    self.screen = Screen.player
+                self.lock.release()
+
                 atentie = self.check_attention_warning()
                 self.lock.acquire()
                 self.atentie = atentie

@@ -36,7 +36,7 @@ class Window:
         self.h = window_rect[3] - window_rect[1]
 
         # account for the window border and titlebar and cut them off
-        border_left = 100
+        border_left = 80
         border_right = 11
         titlebar_pixels = 250
         bottom_border = 50
@@ -54,7 +54,7 @@ class Window:
 
 
     def resize(self):
-        win32gui.MoveWindow(self.hwnd,0,0,800,800, True)
+        win32gui.MoveWindow(self.hwnd,0,0,1000,1000, True)
     
     def get_screenshot(self, code=cv.COLOR_RGB2BGR):
         small_rect= (self.offset_x,self.offset_y,self.w,self.h)
