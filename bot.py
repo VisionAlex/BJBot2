@@ -24,7 +24,7 @@ class Bot:
     lock = None
 
     screen = None
-    state = HandState.SECOND_SPLIT_HAND
+    state = HandState.DEALT_CARDS
     hands = 0
     bet = 0
 
@@ -314,6 +314,8 @@ class Bot:
 
                 if  self.previous_player_total is not None and self.previous_player_total == self.player_cards:
                     print('Previous player total is the same as current total')
+                    self.player_cards = None
+                    self.previous_player_total = None
                     continue
                 if self.player_cards == "Bust":
                     self.lock.acquire()
