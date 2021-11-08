@@ -18,6 +18,7 @@ class Detection:
     continua = None
     hand_state = HandState.INITIAL
     screen = Screen.player
+    is_second_split_hand = False
     cropped = None
 
     player_cards = None
@@ -128,6 +129,13 @@ class Detection:
     
     def get_player_cards(self):
         isSplit = self.hand_state == HandState.SPLIT_HAND or self.hand_state == HandState.SECOND_SPLIT_HAND
+
+        self.lock.acquire()
+        if self.hand_state == HandState.SECOND_SPLIT_HAND:
+            self.is_second_split_hand = True
+        else:
+            self.is_second_split_hand = False
+        self.lock.release()
         
         if self.actions['H'] is None:
             return None

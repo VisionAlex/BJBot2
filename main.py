@@ -37,6 +37,7 @@ if __name__ == '__main__':
         
         bot.update_repariere(detector.repariere)
         bot.update_screen(detector.screen)
+        bot.update_is_second_split_screen(detector.is_second_split_hand)
         bot.update_attention_warning(detector.atentie)
         bot.update_activity_warning(detector.continua)
 
@@ -60,7 +61,7 @@ if __name__ == '__main__':
         # print(pyautogui.position())
         # loop_time = time()
         # cv.drawMarker(window.screenshot,center,(0,0,255))
-        cv.rectangle(window.screenshot,(x,y),(x+w,y+h),color=(0,255,0),thickness=1)
+        # cv.rectangle(window.screenshot,(x,y),(x+w,y+h),color=(0,255,0),thickness=1)
         cv.imshow("BJ", detector.screenshot)
         if cv.waitKey(1) == ord("q"):
             print('----------------------------')
