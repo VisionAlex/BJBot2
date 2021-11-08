@@ -37,7 +37,6 @@ if __name__ == '__main__':
         
         bot.update_repariere(detector.repariere)
         bot.update_screen(detector.screen)
-        bot.update_is_second_split_screen(detector.is_second_split_hand)
         bot.update_attention_warning(detector.atentie)
         bot.update_activity_warning(detector.continua)
 

@@ -24,8 +24,7 @@ class Bot:
     lock = None
 
     screen = None
-    state = HandState.SECOND_SPLIT_HAND
-    is_second_split_screen = False
+    state = HandState.DEALT_CARDS
     hands = 0
     bet = 0
 
@@ -43,7 +42,6 @@ class Bot:
     }
     insurance = False
     previous_player_total = None
-    previous_split_hand = None
 
     def __init__(self):
         self.lock = Lock()
@@ -99,17 +97,18 @@ class Bot:
         self.screen = screen
         self.lock.release()
     
-    def update_is_second_split_screen(self, state):
-        self.lock.acquire()
-        self.is_second_split_screen = state
-        self.lock.release()
-    
     def press_button(self,action):
         if action in self.actions:
             if self.actions[action] is not None:
                 pyautogui.click(*self.actions[action])
                 if action == "D" or action == "P":
                     self.bet += 1
+                return True
+            else:
+                return False
+
+
+                
 
 
 
@@ -166,39 +165,54 @@ class Bot:
                 self.previous_player_total = self.player_cards
                 decision = self.get_decision(self.dealer_card,self.player_cards)
                 
-                sleep(0.5)
                 if decision:
                     self.lock.acquire()
                     if decision == "S":
-                        self.press_button(decision)
+                        is_pressed = self.press_button(decision)
+                        if not is_pressed:
+                            continue
                         self.state = HandState.FINISHED
                     elif decision == "H":
-                        self.press_button(decision)
+                        is_pressed =self.press_button(decision)
+                        if not is_pressed:
+                            continue
                         self.state = HandState.MORE_THAN_TWO
                     elif decision == "D":
                         if self.actions['D'] is not None:
-                            self.press_button(decision)
+                            is_pressed = self.press_button(decision)
+                            if not is_pressed:
+                                continue
                             self.state = HandState.FINISHED
                         else:
-                            self.press_button("H")
+                            is_pressed = self.press_button("H")
+                            if not is_pressed:
+                                continue
+
                             self.state = HandState.MORE_THAN_TWO
                     elif decision == "Ds":
                         if self.actions['D'] is not None:
-                            self.press_button("D")
+                            is_pressed = self.press_button("D")
                         else:
-                            self.press_button("S")
+                            is_pressed = self.press_button("S")
+                            if not is_pressed:
+                                continue
                         self.state = HandState.FINISHED
                     elif decision == "P":
                         if self.player_cards == "AA":
-                            self.press_button(decision)
+                            is_pressed = self.press_button(decision)
+                            if not is_pressed:
+                                continue
                             self.state = HandState.FINISHED
                         else:
                             winsound.Beep(1440,1000)
-                            self.press_button(decision)
+                            is_pressed = self.press_button(decision)
+                            
+                            if not is_pressed:
+                                continue
+
                             self.state = HandState.SPLIT_HAND
                             self.previous_player_total = None
                     self.lock.release()
-                    sleep(1)
                 else:
                     print(f" No hand: {self.player_cards} vs {self.dealer_card}")
                 continue
@@ -222,24 +236,33 @@ class Bot:
                     if decision:
                         self.lock.acquire()
                         if decision == "S":
-                            self.press_button(decision)
+                            is_pressed = self.press_button(decision)
+                            if not is_pressed:
+                                continue
                             self.state = HandState.FINISHED
                         elif decision == "H":
                             if self.dealer_card == "Ten" and self.player_cards == "16":
-                                self.press_button("S")
+                                is_pressed = self.press_button("S")
+                                if not is_pressed:
+                                    continue
                                 print('Changed decision to S for 16 vs 10')
                                 self.state = HandState.FINISHED
                             else:
-                                self.press_button(decision)
+                                is_pressed = self.press_button(decision)
+                                if not is_pressed:
+                                    continue
                         elif decision == "D":
-                                self.press_button("H")
+                                is_pressed = self.press_button("H")
+                                if not is_pressed:
+                                    continue
                         elif decision == "Ds":
-                                self.press_button("S")
+                                is_pressed =self.press_button("S")
+                                if not is_pressed:
+                                    continue
                                 self.state = HandState.FINISHED
                         self.lock.release()  
                     else:
                         print(f" No hand: {self.player_cards} vs {self.dealer_card}")
-                    sleep(0.5)
                     continue
             
             if self.state == HandState.SPLIT_HAND:
@@ -257,10 +280,11 @@ class Bot:
                 if self.player_cards == "Bust":
                     self.lock.acquire()
                     self.state = HandState.SECOND_SPLIT_HAND
-                    self.previous_split_hand = self.player_cards
                     self.previous_player_total = None
-                    sleep(2.5)
                     self.lock.release()
+                
+                if self.player_cards == "22":
+                    self.player_cards = "4"
                 
                 self.previous_player_total = self.player_cards
                 decision = self.get_decision(self.dealer_card,self.player_cards)
@@ -269,30 +293,41 @@ class Bot:
                 if decision:
                     self.lock.acquire()
                     if decision == "S":
-                        self.press_button("S")
+                        is_pressed = self.press_button("S")
+                        if not is_pressed:
+                            continue
                         self.player_cards = None
                         self.previous_player_total = None
                         self.state = HandState.SECOND_SPLIT_HAND
                     elif decision == "D":
                         if self.actions['D'] is not None:
-                            self.press_button(decision)
+                            is_pressed = self.press_button(decision)
+                            if not is_pressed:
+                                continue
                             self.player_cards = None
                             self.previous_player_total = None
                             self.state = HandState.SECOND_SPLIT_HAND
                         else:
-                            self.press_button('H')
+                            is_pressed = self.press_button('H')
+                            if not is_pressed:
+                                continue
                     elif decision == "Ds":
                         if self.actions['D'] is not None:
-                            self.press_button("D")
+                            is_pressed = self.press_button("D")
+                            if not is_pressed:
+                                continue
                         else:
-                            self.press_button("S")
+                            is_pressed = self.press_button("S")
+                            if not is_pressed:
+                                continue
                         self.player_cards = None
                         self.previous_player_total = None
                         self.state = HandState.SECOND_SPLIT_HAND
                     elif decision == "H":
-                        self.press_button(decision)
+                        is_pressed = self.press_button(decision)
+                        if not is_pressed:
+                            continue
                     self.lock.release()
-                    sleep(2.5)
                 continue
                 
 
@@ -301,10 +336,6 @@ class Bot:
                     print('No screen')
                     continue
                 
-                if self.is_second_split_screen == False:
-                    print('No updated screen')
-                    continue
-
                 if self.actions['H'] is None:
                     print('No buttons')
                     continue
@@ -318,6 +349,7 @@ class Bot:
                     self.player_cards = None
                     self.previous_player_total = None
                     continue
+
                 if self.player_cards == "Bust":
                     self.lock.acquire()
                     self.state = HandState.FINISHED
@@ -333,26 +365,37 @@ class Bot:
                 if decision:
                     self.lock.acquire()
                     if decision == "S":
-                        self.press_button("S")
-                        # self.state = HandState.FINISHED
+                        is_pressed = self.press_button("S")
+                        if not is_pressed:
+                            continue
+                        self.state = HandState.FINISHED
                     elif decision == "D":
                         if self.actions['D'] is not None:
-                            self.press_button(decision)
-                            # self.state = HandState.FINISHED
+                            is_pressed = self.press_button(decision)
+                            if not is_pressed:
+                                continue
+                            self.state = HandState.FINISHED
                         else:
-                            self.press_button('H')
+                            is_pressed = self.press_button('H')
+                            if not is_pressed:
+                                continue
                     elif decision == "Ds":
                         if self.actions['D'] is not None:
-                            self.press_button("D")
+                            is_pressed = self.press_button("D")
+                            if not is_pressed:
+                                continue
                         else:
-                            self.press_button("S")
-                        # self.state = HandState.FINISHED
+                            is_pressed = self.press_button("S")
+                            if not is_pressed:
+                                continue
+                        self.state = HandState.FINISHED
                     elif decision == "H":
-                        self.press_button(decision)
+                        is_pressed = self.press_button(decision)
+                        if not is_pressed:
+                            continue
                     self.lock.release()
                 else:
                     print(f'no decision: {self.player_cards, self.dealer_card}')
-                sleep(1)
                 continue
 
             if self.state == HandState.FINISHED:
