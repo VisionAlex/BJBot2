@@ -315,6 +315,8 @@ class Bot:
 
                 if  self.previous_player_total is not None and self.previous_player_total == self.player_cards:
                     print('Previous player total is the same as current total')
+                    self.player_cards = None
+                    self.previous_player_total = None
                     continue
                 if self.player_cards == "Bust":
                     self.lock.acquire()

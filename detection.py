@@ -272,9 +272,14 @@ class Detection:
         if twentyfive:
             return "Bust"
         
+        busted = self.find_player_cards(Cards.busted)
+        if busted:
+            return "Bust"
+
         four = self.find_player_cards(Cards.four)
         if four:
             return "22"
+        
 
         return None
 

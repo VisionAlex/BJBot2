@@ -36,6 +36,8 @@ class Cards:
     a9 = cv.imread('img/cards/a9.bmp')
     aa = cv.imread('img/cards/aa.bmp')
 
+    busted = cv.imread('img/cards/busted.bmp')
+
 
 class Dealer:
     two = cv.imread('img/dealer_cards/2.bmp',cv.IMREAD_GRAYSCALE)
