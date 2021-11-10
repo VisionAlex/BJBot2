@@ -24,7 +24,7 @@ class Bot:
     lock = None
 
     screen = None
-    state = HandState.SPLIT_HAND
+    state = HandState.DEALT_CARDS
     hands = 0
     bet = 0
 
@@ -144,9 +144,11 @@ class Bot:
             if self.state == HandState.DEALT_CARDS:
                 if self.previous_player_total is not None and self.previous_player_total == self.player_cards:
                     print('Same card as previous')
+                    sleep(0.5)
                     continue
 
                 if self.actions['H'] is None:
+                    sleep(0.5)
                     continue
 
                 if self.player_cards == "6" and self.actions['P'] is not None:
@@ -211,8 +213,9 @@ class Bot:
 
                             self.state = HandState.SPLIT_HAND
                             self.previous_player_total = None
+                            sleep(4)
                     self.lock.release()
-                    sleep(1)
+                    sleep(2)
                 # else:
                     # print(
                     # f" No hand: {self.player_cards} vs {self.dealer_card}")
@@ -220,16 +223,19 @@ class Bot:
 
             if self.state == HandState.SPLIT_HAND:
                 if self.screen != Screen.split1:
+                    sleep(0.5)
                     continue
                 if self.actions['H'] is None:
+                    sleep(0.5)
                     continue
                 if self.player_cards is None:
+                    sleep(0.5)
                     continue
                 if self.previous_player_total is not None and self.previous_player_total == self.player_cards:
                     print('Same card as previous')
                     continue
 
-                if self.player_cards == "Bust":
+                if self.player_cards == "Bust" and self.previous_player_total is not None:
                     self.lock.acquire()
                     self.state = HandState.SECOND_SPLIT_HAND
                     self.previous_player_total = None
@@ -281,18 +287,15 @@ class Bot:
                         if not is_pressed:
                             continue
                     self.lock.release()
+                    sleep(2)
                 continue
 
             if self.state == HandState.SECOND_SPLIT_HAND:
                 if self.screen != Screen.split2:
-                    print('No screen')
                     continue
-
                 if self.actions['H'] is None:
-                    print('No buttons')
                     continue
                 if self.player_cards is None:
-                    print('No player cards')
                     continue
 
                 if self.previous_player_total is not None and self.previous_player_total == self.player_cards:
@@ -350,6 +353,7 @@ class Bot:
                 else:
                     print(
                         f'no decision: {self.player_cards, self.dealer_card}')
+                sleep(1.5)
                 continue
 
             if self.state == HandState.FINISHED:

@@ -61,6 +61,7 @@ if __name__ == '__main__':
         # cv.drawMarker(window.screenshot,center,(0,0,255))
         # cv.rectangle(window.screenshot,(x,y),(x+w,y+h),color=(0,255,0),thickness=1)
         cv.imshow("BJ", detector.screenshot)
+
         if cv.waitKey(1) == ord("q"):
             print('----------------------------')
             print(f'HANDS: {bot.hands}')
