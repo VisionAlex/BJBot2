@@ -18,7 +18,7 @@ class Detection:
     atentie = None
     continua = None
     hand_state = HandState.DEALT_CARDS
-    screen = Screen.player
+    screen = Screen.split1
     cropped = None
 
     player_cards = None
@@ -58,7 +58,7 @@ class Detection:
         else:
             return None
 
-    def find_player_cards(self, object, threshold=0.95):
+    def find_player_cards(self, object, threshold=0.94):
         if self.screen == Screen.split1 and self.hand_state != HandState.SPLIT_HAND:
             return None
         if self.screen == Screen.split2 and self.hand_state != HandState.SECOND_SPLIT_HAND:
@@ -66,7 +66,7 @@ class Detection:
 
         x, y, w, h = self.screen
         cropped = self.screenshot[y:y+h, x:x+w]
-
+        
         result = cv.matchTemplate(cropped, object, method=cv.TM_CCOEFF_NORMED)
         _, max_val, __, max_loc = cv.minMaxLoc(result)
         if max_val > threshold:

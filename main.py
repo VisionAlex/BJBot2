@@ -31,7 +31,7 @@ if __name__ == '__main__':
         detector.update(window.screenshot)
         detector.update_hand_state(bot.state)
 
-        # img = cv.imread('img/screens/player.bmp')
+        # img = cv.imread('img/screens/screen.bmp')
         # rect = detector.get_rectangle(img)
         # print(rect)
 
@@ -52,14 +52,11 @@ if __name__ == '__main__':
         # print(f"{detector.actions}")
         # print('FPS {}'.format(1 / (time() - loop_time)))
 
-        # img = cv.imread('img/screens/player.bmp')
-        # rect = detector.get_rectangle(img)
-        # print(rect)
-        # x, y, w, h = detector.screen
         # print(pyautogui.position())
         # loop_time = time()
         # cv.drawMarker(window.screenshot,center,(0,0,255))
-        # cv.rectangle(window.screenshot,(x,y),(x+w,y+h),color=(0,255,0),thickness=1)
+        x, y, w, h = detector.screen
+        cv.rectangle(detector.screenshot,(x,y),(x+w,y+h),color=(0,255,0),thickness=1)
         cv.imshow("BJ", detector.screenshot)
 
         if cv.waitKey(1) == ord("q"):

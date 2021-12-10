@@ -37,8 +37,8 @@ class Window:
         self.h = window_rect[3] - window_rect[1]
 
         # account for the window border and titlebar and cut them off
-        border_left = 80
-        border_right = 11
+        border_left = 55
+        border_right = 5
         titlebar_pixels = 250
         bottom_border = 50
         self.w = self.w - (border_left + border_right)
