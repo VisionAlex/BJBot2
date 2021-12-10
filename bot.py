@@ -144,7 +144,8 @@ class Bot:
             if self.state == HandState.DEALT_CARDS:
                 if self.previous_player_total is not None and self.previous_player_total == self.player_cards:
                     print('Same card as previous')
-                    sleep(0.5)
+                    self.previous_player_total = None
+                    sleep(1)
                     continue
 
                 if self.actions['H'] is None:
@@ -195,8 +196,8 @@ class Bot:
                             is_pressed = self.press_button("D")
                         else:
                             is_pressed = self.press_button("S")
-                            if not is_pressed:
-                                continue
+                        if not is_pressed:
+                            continue
                         self.state = HandState.FINISHED
                     elif decision == "P":
                         if self.player_cards == "AA":
