@@ -149,7 +149,7 @@ class Bot:
                     continue
 
                 if self.actions['H'] is None:
-                    sleep(0.5)
+                    sleep(0.6)
                     continue
 
                 if self.player_cards == "6" and self.actions['P'] is not None:

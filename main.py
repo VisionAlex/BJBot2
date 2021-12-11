@@ -55,8 +55,8 @@ if __name__ == '__main__':
         # print(pyautogui.position())
         # loop_time = time()
         # cv.drawMarker(window.screenshot,center,(0,0,255))
-        x, y, w, h = detector.screen
-        cv.rectangle(detector.screenshot,(x,y),(x+w,y+h),color=(0,255,0),thickness=1)
+        # x, y, w, h = detector.screen
+        # cv.rectangle(detector.screenshot,(x,y),(x+w,y+h),color=(0,255,0),thickness=1)
         cv.imshow("BJ", detector.screenshot)
 
         if cv.waitKey(1) == ord("q"):
