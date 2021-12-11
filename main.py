@@ -31,7 +31,7 @@ if __name__ == '__main__':
         detector.update(window.screenshot)
         detector.update_hand_state(bot.state)
 
-        # img = cv.imread('img/screens/screen.bmp')
+        # img = cv.imread('img/screens/split2.bmp')
         # rect = detector.get_rectangle(img)
         # print(rect)
 

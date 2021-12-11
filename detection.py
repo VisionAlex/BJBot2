@@ -58,7 +58,7 @@ class Detection:
         else:
             return None
 
-    def find_player_cards(self, object, threshold=0.94):
+    def find_player_cards(self, object, threshold=0.83):
         if self.screen == Screen.split1 and self.hand_state != HandState.SPLIT_HAND:
             return None
         if self.screen == Screen.split2 and self.hand_state != HandState.SECOND_SPLIT_HAND:
@@ -66,11 +66,13 @@ class Detection:
 
         x, y, w, h = self.screen
         cropped = self.screenshot[y:y+h, x:x+w]
+        grayed_cropped = cv.cvtColor(cropped, cv.COLOR_BGR2GRAY)
         
-        result = cv.matchTemplate(cropped, object, method=cv.TM_CCOEFF_NORMED)
-        _, max_val, __, max_loc = cv.minMaxLoc(result)
+        result = cv.matchTemplate(grayed_cropped, object, method=cv.TM_CCOEFF_NORMED)
+        
+        _, max_val, __, ___ = cv.minMaxLoc(result)
         if max_val > threshold:
-            return max_loc
+            return max_val
         else:
             return None
 
@@ -126,6 +128,8 @@ class Detection:
         return self.find_position(center)
 
     def get_player_cards(self):
+        coeff = 0
+        card = None
 
         if self.hand_state == HandState.SECOND_SPLIT_HAND and self.screen != Screen.split2:
             return None
@@ -136,107 +140,158 @@ class Detection:
             return None
         twenty = self.find_player_cards(Cards.twenty)
         if twenty:
-            return "20"
-
+            if twenty > coeff:
+                coeff = twenty
+                card = "20"
         thirteen = self.find_player_cards(Cards.thirteen)
         if thirteen:
-            return "13"
+            if thirteen > coeff:
+                coeff = thirteen
+                card = "13"
 
         twelve = self.find_player_cards(Cards.twelve)
         if twelve:
-            return "12"
+            if twelve > coeff:
+                coeff = thirteen
+                card = "12"
 
         fourteen = self.find_player_cards(Cards.fourteen)
         if fourteen:
-            return "14"
+            if fourteen > coeff:
+                coeff = fourteen
+                card = "14"
 
         fifteen = self.find_player_cards(Cards.fifteen)
         if fifteen:
-            return "15"
+            if fifteen > coeff:
+                coeff = fifteen
+                card = "15"
 
         sixteen = self.find_player_cards(Cards.sixteen)
         if sixteen:
-            return "16"
+            if sixteen > coeff:
+                coeff = sixteen
+                card = "16"
 
         seventeen = self.find_player_cards(Cards.seventeen)
         if seventeen:
-            return "17"
+            if seventeen > coeff:
+                coeff = seventeen
+                card = "17"
 
         eighteen = self.find_player_cards(Cards.eighteen)
         if eighteen:
-            return "18"
+            if eighteen > coeff:
+                coeff = eighteen
+                card = "18"
 
         nineteen = self.find_player_cards(Cards.nineteen)
         if nineteen:
-            return "19"
+            if nineteen > coeff:
+                coeff = nineteen
+                card = "19"
 
         twentyone = self.find_player_cards(Cards.twentyone)
         if twentyone:
-            return "21"
+            if twentyone > coeff:
+                coeff = twentyone
+                card = "21"
 
         eleven = self.find_player_cards(Cards.eleven)
         if eleven:
-            return "11"
+            if eleven > coeff:
+                coeff = eleven
+                card = "11"
 
         ten = self.find_player_cards(Cards.ten)
         if ten:
-            return "10"
+            if ten > coeff:
+                coeff = ten
+                card = "10"
 
         nine = self.find_player_cards(Cards.nine)
         if nine:
-            return "9"
+            if nine > coeff:
+                coeff = nine
+                card = "9"
 
         eight = self.find_player_cards(Cards.eight)
         if eight:
-            return "8"
+            if eight > coeff:
+                coeff = eight
+                card = "8"
 
         seven = self.find_player_cards(Cards.seven)
         if seven:
-            return "7"
+            if seven > coeff:
+                coeff = seven
+                card = "7"
 
         six = self.find_player_cards(Cards.six)
         if six:
-            return "6"
+            if six > coeff:
+                coeff = six
+                card = "6"
 
         five = self.find_player_cards(Cards.five)
         if five:
-            return "5"
+            if five > coeff:
+                coeff = five
+                card = "5"
 
         a2 = self.find_player_cards(Cards.a2)
         if a2:
-            return "A2"
+            if a2 > coeff:
+                coeff = a2
+                card = "A2"
 
         a3 = self.find_player_cards(Cards.a3)
         if a3:
-            return "A3"
+            if a3 > coeff:
+                coeff = a3
+                card = "A3"
 
         a4 = self.find_player_cards(Cards.a4)
         if a4:
-            return "A4"
+            if a4 > coeff:
+                coeff = a4
+                card = "A4"
 
         a5 = self.find_player_cards(Cards.a5)
         if a5:
-            return "A5"
+            if a5 > coeff:
+                coeff = a5
+                card = "A5"
 
         a6 = self.find_player_cards(Cards.a6)
         if a6:
-            return "A6"
+            if a6 > coeff:
+                coeff = a6
+                card = "A6"
 
         a7 = self.find_player_cards(Cards.a7)
         if a7:
-            return "A7"
+            if a7 > coeff:
+                coeff = a7
+                card = "A7"
 
         a8 = self.find_player_cards(Cards.a8)
         if a8:
-            return "A8"
+            if a8 > coeff:
+                coeff = a8
+                card = "A8"
 
         a9 = self.find_player_cards(Cards.a9)
         if a9:
-            return "A9"
+            if a9 > coeff:
+                coeff = a9
+                card = "A9"
 
         aa = self.find_player_cards(Cards.aa)
         if aa:
-            return "AA"
+            if aa > coeff:
+                coeff = aa
+                card = "AA"
 
         twentytwo = self.find_player_cards(Cards.twentytwo)
         if twentytwo:
@@ -260,9 +315,11 @@ class Detection:
 
         four = self.find_player_cards(Cards.four)
         if four:
-            return "22"
-
-        return None
+            if four > coeff:
+                coeff = four
+                card = "22"
+        print(card,coeff)
+        return card
 
     def get_dealer_card(self):
         two = self.find_dealer_cards(Dealer.two)

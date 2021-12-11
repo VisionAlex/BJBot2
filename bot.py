@@ -24,7 +24,7 @@ class Bot:
     lock = None
 
     screen = None
-    state = HandState.DEALT_CARDS
+    state = HandState.SECOND_SPLIT_HAND
     hands = 0
     bet = 0
 
