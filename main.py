@@ -1,5 +1,5 @@
 from bot import Bot, HandState
-from cards import Cards
+from cards import Cards, DetectorScreen
 from detection import Detection
 from windowcapture import Window
 import cv2 as cv
@@ -30,10 +30,10 @@ if __name__ == '__main__':
 
         detector.update(window.screenshot)
         detector.update_hand_state(bot.state)
-
-        # img = cv.imread('img/screens/split2.bmp')
-        # rect = detector.get_rectangle(img)
+        
+        # rect = detector.get_rectangle(DetectorScreen.split2)
         # print(rect)
+        # 
 
         bot.update_repariere(detector.repariere)
         bot.update_screen(detector.screen)
@@ -55,7 +55,7 @@ if __name__ == '__main__':
         # print(pyautogui.position())
         # loop_time = time()
         # cv.drawMarker(window.screenshot,center,(0,0,255))
-        # x, y, w, h = detector.screen
+        # x, y, w, h = Screen.dealer
         # cv.rectangle(detector.screenshot,(x,y),(x+w,y+h),color=(0,255,0),thickness=1)
         cv.imshow("BJ", detector.screenshot)
 

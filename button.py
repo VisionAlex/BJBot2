@@ -10,12 +10,13 @@ class Button:
     insurance =cv.imread('img/insurance.bmp')
     even_money = cv.imread('img/even.bmp')
     ok = cv.imread('img/ok.bmp')
+    no = cv.imread('img/no.bmp')
     continua = cv.imread('img/continua.bmp')
 
 
 class Screen:
-    player = (461, 258, 61, 53)
-    dealer = (353, 26, 226, 91)
-    split1 = (546, 261, 68, 60)
-    split2 = (353, 255, 78, 64)
+    player = (449, 308, 69, 57)
+    dealer = (396, 103, 115, 111)
+    split1 = (529, 316, 56, 49)
+    split2 = (372, 317, 59, 49)
 

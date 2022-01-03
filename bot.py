@@ -8,7 +8,7 @@ import winsound
 import pyautogui
 
 STRATEGY = strategy.get_strategy()
-INSURANCE = (449, 744)
+INSURANCE = (398, 490)
 
 
 class HandState(Enum):
@@ -24,7 +24,7 @@ class Bot:
     lock = None
 
     screen = None
-    state = HandState.SECOND_SPLIT_HAND
+    state = HandState.DEALT_CARDS
     hands = 0
     bet = 0
 

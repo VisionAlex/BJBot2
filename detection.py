@@ -17,8 +17,8 @@ class Detection:
     repariere = None
     atentie = None
     continua = None
-    hand_state = HandState.DEALT_CARDS
-    screen = Screen.split1
+    hand_state = HandState.DEALT_CARDS   
+    screen = Screen.player
     cropped = None
 
     player_cards = None
@@ -318,7 +318,7 @@ class Detection:
             if four > coeff:
                 coeff = four
                 card = "22"
-        print(card,coeff)
+        # print(card,coeff)
         return card
 
     def get_dealer_card(self):

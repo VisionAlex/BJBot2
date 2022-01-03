@@ -53,3 +53,10 @@ class Dealer:
     queen = cv.imread('img/dealer_cards/Q.bmp',cv.IMREAD_GRAYSCALE)
     king = cv.imread('img/dealer_cards/K.bmp',cv.IMREAD_GRAYSCALE)
     ace = cv.imread('img/dealer_cards/A.bmp',cv.IMREAD_GRAYSCALE)
+
+
+class DetectorScreen:
+    dealer = cv.imread('img/screens/dealer.bmp')
+    player = cv.imread('img/screens/player.bmp')
+    split1 = cv.imread('img/screens/split1.bmp')
+    split2 = cv.imread('img/screens/split2.bmp')
