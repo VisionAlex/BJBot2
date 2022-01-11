@@ -8,7 +8,7 @@ import winsound
 import pyautogui
 
 STRATEGY = strategy.get_strategy()
-INSURANCE = (398, 490)
+INSURANCE = (453, 740)
 
 
 class HandState(Enum):

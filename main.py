@@ -31,9 +31,9 @@ if __name__ == '__main__':
         detector.update(window.screenshot)
         detector.update_hand_state(bot.state)
         
-        # rect = detector.get_rectangle(DetectorScreen.split2)
-        # print(rect)
-        # 
+        # no = detector.find(Button.no)
+        # center = detector.find_position(detector.find_center(Button.no,no))
+        # print(center)
 
         bot.update_repariere(detector.repariere)
         bot.update_screen(detector.screen)
